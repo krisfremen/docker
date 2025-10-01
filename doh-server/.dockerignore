@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Documentation
+README.md
+*.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# CI/CD
+.github
+
+# Images and assets (in upstream)
+upstream/logo.png
+upstream/*.png
+upstream/*.svg
+
+# Development files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

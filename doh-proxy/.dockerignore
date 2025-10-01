@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Documentation
+README.md
+*.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# CI/CD
+.github
+
+# Images and assets (in upstream)
+upstream/logo.png
+upstream/logo.svg
+upstream/dnscrypt-logo.svg
+
+# Development files
+*.log
+
+# Build artifacts
+upstream/dnscrypt-proxy/dnscrypt-proxy
+
+# Test files
+*_test.go
+testdata/
+
+# OS files
+.DS_Store
+Thumbs.db

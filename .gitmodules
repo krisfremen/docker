@@ -1,0 +1,6 @@
+[submodule "doh-server/upstream"]
+	path = doh-server/upstream
+	url = https://github.com/DNSCrypt/doh-server.git
+[submodule "doh-proxy/upstream"]
+	path = doh-proxy/upstream
+	url = https://github.com/DNSCrypt/dnscrypt-proxy.git
