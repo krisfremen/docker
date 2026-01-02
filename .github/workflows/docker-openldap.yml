@@ -42,7 +42,7 @@ jobs:
       id: meta-openldap
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ github.repository }}/openldap
+        images: krisfremen/openldap
         tags: |
           type=ref,event=branch
           type=ref,event=pr
