@@ -4,3 +4,6 @@
 [submodule "doh-proxy/upstream"]
 	path = doh-proxy/upstream
 	url = https://github.com/DNSCrypt/dnscrypt-proxy.git
+[submodule "openldap/upstream"]
+	path = openldap/upstream
+	url = https://github.com/openldap/openldap.git
