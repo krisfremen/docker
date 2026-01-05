@@ -131,7 +131,9 @@ COPY init-ldap.sh /usr/local/bin/init-ldap.sh
 # Create necessary directories and make scripts executable
 RUN mkdir -p /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d && \
     chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/init-ldap.sh && \
-    chown -R openldap:openldap /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d || true
+    groupadd -r openldap && \
+    useradd -r -g openldap -s /bin/false -d /var/lib/ldap openldap && \
+    chown -R openldap:openldap /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d
 
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
