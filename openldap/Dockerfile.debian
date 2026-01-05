@@ -117,6 +117,7 @@ RUN apt-get update && apt-get install -y \
     libcurl4 \
     libwiredtiger0 \
     ca-certificates \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed files from builder

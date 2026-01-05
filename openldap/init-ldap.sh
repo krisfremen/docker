@@ -45,8 +45,8 @@ cat > /tmp/config.ldif <<EOF
 dn: cn=config
 objectClass: olcGlobal
 cn: config
-olcArgsFile: /var/run/slapd.args
-olcPidFile: /var/run/slapd.pid
+olcArgsFile: /var/run/slapd/slapd.args
+olcPidFile: /var/run/slapd/slapd.pid
 
 dn: cn=module,cn=config
 objectClass: olcModuleList
