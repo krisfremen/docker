@@ -52,9 +52,9 @@ jobs:
           type=raw,value=${{ steps.submodule-version.outputs.tag }},enable=${{ steps.submodule-version.outputs.tag != '' }}
           type=raw,value=${{ steps.submodule-version.outputs.version }},enable=${{ steps.submodule-version.outputs.version != '' }}
           type=raw,value=${{ steps.submodule-version.outputs.commit }}
-          type=ref,event=branch
+          type=ref,event=branch,enable=${{ github.event_name != 'pull_request' }},pattern={{sanitize:branch}}
           type=ref,event=pr
-          type=sha,prefix={{branch}}-
+          type=sha,prefix=sha-
           type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Build and push openldap Docker image
