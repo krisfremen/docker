@@ -7,16 +7,27 @@
 setup() {
     TEST_DIR="$(cd "$(dirname "${BATS_TEST_FILENAME}")" && pwd)"
     OPENLDAP_DIR="$(dirname "$TEST_DIR")"
-    
-    # Ensure container is running
-    cd "$OPENLDAP_DIR"
-    if ! docker-compose ps | grep -q "Up"; then
-        docker-compose up -d
+
+    # Detect Docker Compose command
+    if docker compose version >/dev/null 2>&1; then
+        COMPOSE_CMD="docker compose"
+    else
+        COMPOSE_CMD="docker-compose"
     fi
-    
+
+    # Ensure container is running (only start if not already running)
+    cd "$OPENLDAP_DIR"
+    if ! $COMPOSE_CMD ps | grep -q "Up\|healthy"; then
+        $COMPOSE_CMD up -d
+        # Set a flag to indicate we started the container
+        export TEST_STARTED_CONTAINER=1
+    else
+        export TEST_STARTED_CONTAINER=0
+    fi
+
     LDAP_HOST="ldap://localhost:389"
     BASE_DN="dc=example,dc=com"
-    
+
     # Wait for server to be ready
     for i in {1..30}; do
         if ldapsearch -x -H "$LDAP_HOST" -b "" -s base >/dev/null 2>&1; then
@@ -24,6 +35,14 @@ setup() {
         fi
         sleep 1
     done
+}
+
+teardown() {
+    # Only stop containers if we started them in setup
+    if [ "$TEST_STARTED_CONTAINER" = "1" ]; then
+        cd "$OPENLDAP_DIR"
+        $COMPOSE_CMD down -v
+    fi
 }
 
 @test "LDAP compare operation works" {

@@ -7,34 +7,49 @@ setup() {
     # Get the directory where this script is located
     TEST_DIR="$(cd "$(dirname "${BATS_TEST_FILENAME}")" && pwd)"
     OPENLDAP_DIR="$(dirname "$TEST_DIR")"
-    
-    # Start the container
+
+    # Detect Docker Compose command
+    if docker compose version >/dev/null 2>&1; then
+        COMPOSE_CMD="docker compose"
+    else
+        COMPOSE_CMD="docker-compose"
+    fi
+
+    # Start the container (only if not already running)
     cd "$OPENLDAP_DIR"
-    docker-compose up -d
-    
+    if ! $COMPOSE_CMD ps | grep -q "Up\|healthy"; then
+        $COMPOSE_CMD up -d
+        # Set a flag to indicate we started the container
+        export TEST_STARTED_CONTAINER=1
+    else
+        export TEST_STARTED_CONTAINER=0
+    fi
+
     # Wait for container to be healthy
     timeout=60
     elapsed=0
     while [ $elapsed -lt $timeout ]; do
-        if docker-compose ps | grep -q "healthy"; then
+        if $COMPOSE_CMD ps | grep -q "healthy"; then
             break
         fi
         sleep 2
         elapsed=$((elapsed + 2))
     done
-    
+
     # Additional wait for LDAP to be fully ready
     sleep 5
 }
 
 teardown() {
-    # Stop and remove containers
-    cd "$OPENLDAP_DIR"
-    docker-compose down -v
+    # Stop and remove containers (only if we started them)
+    if [ "$TEST_STARTED_CONTAINER" = "1" ]; then
+        cd "$OPENLDAP_DIR"
+        $COMPOSE_CMD down -v
+    fi
 }
 
 @test "Container starts successfully" {
-    run docker-compose ps
+    run $COMPOSE_CMD ps
     [ "$status" -eq 0 ]
     echo "$output" | grep -q "openldap-test"
     echo "$output" | grep -q "Up"
