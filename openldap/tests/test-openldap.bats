@@ -7,6 +7,7 @@ setup() {
     # Get the directory where this script is located
     TEST_DIR="$(cd "$(dirname "${BATS_TEST_FILENAME}")" && pwd)"
     OPENLDAP_DIR="$(dirname "$TEST_DIR")"
+    export OPENLDAP_DIR
 
     # Detect Docker Compose command
     if docker compose version >/dev/null 2>&1; then
@@ -14,6 +15,7 @@ setup() {
     else
         COMPOSE_CMD="docker-compose"
     fi
+    export COMPOSE_CMD
 
     # Start the container (only if not already running)
     cd "$OPENLDAP_DIR"
@@ -25,19 +27,13 @@ setup() {
         export TEST_STARTED_CONTAINER=0
     fi
 
-    # Wait for container to be healthy
-    timeout=60
-    elapsed=0
-    while [ $elapsed -lt $timeout ]; do
-        if $COMPOSE_CMD ps | grep -q "healthy"; then
+    # Wait for LDAP server to be ready
+    for i in {1..30}; do
+        if ldapsearch -x -H ldap://localhost:389 -b "" -s base >/dev/null 2>&1; then
             break
         fi
-        sleep 2
-        elapsed=$((elapsed + 2))
+        sleep 1
     done
-
-    # Additional wait for LDAP to be fully ready
-    sleep 5
 }
 
 teardown() {
