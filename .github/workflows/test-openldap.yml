@@ -1,0 +1,41 @@
+name: Test OpenLDAP
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'openldap/**'
+      - '.github/workflows/test-openldap.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'openldap/**'
+      - '.github/workflows/test-openldap.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install BATS
+        run: |
+          git clone https://github.com/bats-core/bats-core.git
+          sudo ./bats-core/install.sh /usr/local
+
+      - name: Install LDAP tools
+        run: sudo apt-get update && sudo apt-get install -y ldap-utils
+
+      - name: Run OpenLDAP tests
+        run: |
+          cd openldap
+          ./run-tests.sh
+
+      - name: Cleanup containers
+        if: always()
+        run: |
+          cd openldap
+          docker compose down -v 2>/dev/null || docker-compose down -v

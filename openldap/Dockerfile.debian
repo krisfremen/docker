@@ -117,6 +117,7 @@ RUN apt-get update && apt-get install -y \
     libcurl4 \
     libwiredtiger0 \
     ca-certificates \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed files from builder
@@ -124,17 +125,30 @@ COPY --from=builder /build/install/usr /usr
 COPY --from=builder /build/install/etc /etc
 COPY --from=builder /build/install/var /var
 
-# Create necessary directories
+# Copy scripts
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY init-ldap.sh /usr/local/bin/init-ldap.sh
+
+# Create necessary directories and make scripts executable
 RUN mkdir -p /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d && \
-    chown -R openldap:openldap /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d || true
+    chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/init-ldap.sh && \
+    groupadd -r openldap && \
+    useradd -r -g openldap -s /bin/false -d /var/lib/ldap openldap && \
+    chown -R openldap:openldap /var/lib/ldap /var/run/slapd /etc/openldap/slapd.d
+
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Expose LDAP ports
 EXPOSE 389 636
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD ldapsearch -x -H ldap://localhost:389 -b "" -s base || exit 1
+    CMD /usr/bin/ldapsearch -x -H ldap://localhost:389 -b "" -s base || exit 1
 
 # Default command
-CMD ["slapd", "-d", "stats", "-h", "ldap:/// ldaps:///", "-F", "/etc/openldap/slapd.d"]
+# Note: slapd is installed to /usr/libexec/slapd, not in standard PATH
+# Run in foreground mode with debug output
+# Note: -h argument needs separate URLs or combined string
+CMD ["/usr/libexec/slapd", "-d", "1", "-h", "ldap:///", "-F", "/etc/openldap/slapd.d"]
 

@@ -1,0 +1,30 @@
+services:
+  openldap:
+    build:
+      context: .
+      dockerfile: Dockerfile.debian
+    container_name: openldap-test
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      - LDAP_ORGANISATION=Example
+      - LDAP_DOMAIN=example.com
+      - LDAP_BASE_DN=dc=example,dc=com
+      - LDAP_ADMIN_USER=admin
+      - LDAP_ADMIN_PASSWORD=admin
+    volumes:
+      - openldap-data:/var/lib/ldap
+      - openldap-config:/etc/openldap/slapd.d
+    healthcheck:
+      test: ["CMD", "/usr/bin/ldapsearch", "-x", "-H", "ldap://localhost:389", "-b", "", "-s", "base"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  openldap-data:
+  openldap-config:
+
