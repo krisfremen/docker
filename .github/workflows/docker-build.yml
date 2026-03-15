@@ -42,7 +42,7 @@ jobs:
 
     - name: Extract metadata for doh-server
       id: meta-doh-server
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ env.REGISTRY }}/${{ github.repository }}/doh-server
         tags: |
@@ -86,7 +86,7 @@ jobs:
 
     - name: Extract metadata for doh-proxy
       id: meta-doh-proxy
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: krisfremen/doh-proxy
         tags: |

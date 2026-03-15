@@ -45,7 +45,7 @@ jobs:
 
     - name: Extract metadata for openldap
       id: meta-openldap
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: krisfremen/openldap
         tags: |
